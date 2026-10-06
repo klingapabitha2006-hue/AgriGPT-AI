@@ -1,2 +1,6 @@
 Flask
 Flask-CORS
+gunicorn
+joblib
+deep-translator
+scikit-learn
