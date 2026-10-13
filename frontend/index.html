@@ -1,0 +1,3009 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AgriGpt - Agriculture Assistant</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #212121;
+    color: #ececec;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: #171717;
+    border-right: 1px solid #303030;
+    padding: 18px;
+    z-index: 20;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    color: #ffffff;
+}
+
+.logo span {
+    color: #20c997;
+}
+
+.new-chat {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: #212121;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: left;
+}
+
+.new-chat:hover {
+    background: #2a2a2a;
+}
+
+.menu-title {
+    margin-top: 28px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.menu-item {
+    padding: 12px;
+    border-radius: 7px;
+    margin-bottom: 5px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+.menu-item.active {
+    background: #2a2a2a;
+    color: #fff;
+}
+
+.menu-item.coming {
+    opacity: 0.55;
+}
+
+/* ================= MAIN ================= */
+
+.main {
+    margin-left: 260px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar {
+    height: 60px;
+    border-bottom: 1px solid #303030;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    font-size: 17px;
+    font-weight: bold;
+    background: #212121;
+}
+
+.status {
+    margin-left: auto;
+    font-size: 12px;
+    color: #20c997;
+    font-weight: normal;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #20c997;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+/* ================= CHAT ================= */
+
+.chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px 8%;
+    position: relative;
+}
+
+.welcome {
+    max-width: 850px;
+    margin: 8vh auto 0;
+    text-align: center;
+}
+
+.welcome h1 {
+    font-size: 34px;
+    margin-bottom: 12px;
+}
+
+.welcome h1 span {
+    color: #20c997;
+}
+
+.welcome p {
+    color: #999;
+    margin-bottom: 30px;
+}
+
+.suggestions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.suggestion {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    padding: 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.suggestion:hover {
+    background: #333;
+    border-color: #20c997;
+}
+
+.suggestion-title {
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+.suggestion-text {
+    color: #999;
+    font-size: 13px;
+}
+
+/* ================= MESSAGES ================= */
+
+.message {
+    max-width: 850px;
+    margin: 0 auto 25px;
+    display: flex;
+    gap: 14px;
+}
+
+.avatar {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+
+.user-avatar {
+    background: #444;
+}
+
+.ai-avatar {
+    background: #20c997;
+    color: #111;
+}
+
+.message-content {
+    line-height: 1.65;
+    font-size: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.message-name {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+/* ================= THINKING ================= */
+
+.thinking {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.thinking span {
+    width: 7px;
+    height: 7px;
+    background: #20c997;
+    border-radius: 50%;
+    animation: thinking 1.2s infinite;
+}
+
+.thinking span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.thinking span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes thinking {
+
+    0%, 60%, 100% {
+        opacity: 0.25;
+        transform: translateY(0);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(-4px);
+    }
+
+}
+
+/* ================= HOLOGRAM ================= */
+
+.hologram-container {
+    position: fixed;
+    right: 35px;
+    bottom: 115px;
+    width: 210px;
+    height: 300px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.hologram-container.visible {
+    display: flex;
+}
+
+.hologram {
+    position: relative;
+    width: 170px;
+    height: 260px;
+    animation: holoFloat 3s ease-in-out infinite;
+}
+
+@keyframes holoFloat {
+
+    0%,100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+
+}
+
+/* ================= HOLOGRAM HEAD ================= */
+
+.holo-head {
+    position: absolute;
+    top: 25px;
+    left: 40px;
+    width: 90px;
+    height: 105px;
+    border: 2px solid #20c997;
+    border-radius: 48% 48% 45% 45%;
+    box-shadow:
+        0 0 10px #20c997,
+        inset 0 0 15px rgba(32,201,151,0.2);
+}
+
+/* ================= EYES ================= */
+
+.eye {
+    position: absolute;
+    top: 43px;
+    width: 12px;
+    height: 5px;
+    border-radius: 10px;
+    background: #20c997;
+    box-shadow: 0 0 8px #20c997;
+    animation: blink 4s infinite;
+}
+
+.eye.left {
+    left: 21px;
+}
+
+.eye.right {
+    right: 21px;
+}
+
+@keyframes blink {
+
+    0%, 45%, 48%, 100% {
+        transform: scaleY(1);
+    }
+
+    46%,47% {
+        transform: scaleY(0.1);
+    }
+
+}
+
+/* ================= NOSE ================= */
+
+.nose {
+    position: absolute;
+    top: 53px;
+    left: 42px;
+    width: 5px;
+    height: 18px;
+    border-left: 1px solid #20c997;
+    transform: rotate(8deg);
+}
+
+/* ================= MOUTH ================= */
+
+.holo-mouth {
+    position: absolute;
+    top: 78px;
+    left: 31px;
+    width: 28px;
+    height: 6px;
+    border: 2px solid #20c997;
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    box-shadow:
+        0 0 6px #20c997,
+        0 0 12px rgba(32,201,151,0.5);
+
+    transition:
+        width 0.07s ease,
+        height 0.07s ease,
+        border-radius 0.07s ease,
+        transform 0.07s ease,
+        box-shadow 0.07s ease,
+        background 0.07s ease;
+}
+
+.holo-mouth.lip-1 {
+    width: 25px;
+    height: 5px;
+    border-radius: 50%;
+}
+
+.holo-mouth.lip-2 {
+    width: 30px;
+    height: 9px;
+    border-radius: 45%;
+}
+
+.holo-mouth.lip-3 {
+    width: 34px;
+    height: 13px;
+    border-radius: 50%;
+}
+
+.holo-mouth.lip-4 {
+    width: 38px;
+    height: 10px;
+    border-radius: 45%;
+}
+
+.holo-mouth.lip-5 {
+    width: 31px;
+    height: 18px;
+    border-radius: 45%;
+    background: rgba(32,201,151,0.12);
+    box-shadow:
+        0 0 8px #20c997,
+        0 0 18px rgba(32,201,151,0.8);
+}
+
+.holo-mouth.lip-6 {
+    width: 27px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.holo-mouth.idle {
+    width: 28px;
+    height: 6px;
+    border-radius: 0 0 20px 20px;
+}
+
+/* ================= BODY ================= */
+
+.holo-body {
+    position: absolute;
+    top: 132px;
+    left: 23px;
+    width: 124px;
+    height: 100px;
+    border: 2px solid #20c997;
+    border-radius: 55px 55px 20px 20px;
+    box-shadow:
+        0 0 15px rgba(32,201,151,0.4),
+        inset 0 0 20px rgba(32,201,151,0.12);
+}
+
+/* ================= CHEST ================= */
+
+.chest {
+    position: absolute;
+    top: 35px;
+    left: 38px;
+    width: 45px;
+    height: 30px;
+    border: 1px solid #20c997;
+    border-radius: 8px;
+}
+
+/* ================= SCAN ================= */
+
+.scan-line {
+    position: absolute;
+    left: 15px;
+    right: 15px;
+    top: 0;
+    height: 2px;
+    background: #20c997;
+    opacity: 0.6;
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+
+    from {
+        top: 0;
+    }
+
+    to {
+        top: 230px;
+    }
+
+}
+
+/* ================= BASE ================= */
+
+.holo-base {
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    width: 150px;
+    height: 20px;
+    border: 2px solid #20c997;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #20c997;
+}
+
+/* ================= GLOW ================= */
+
+.hologram-container::before {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: rgba(32,201,151,0.08);
+    border-radius: 50%;
+    filter: blur(25px);
+}
+
+/* ================= INPUT ================= */
+
+.input-section {
+    padding: 15px 8% 20px;
+    background: #212121;
+}
+
+.input-box {
+    max-width: 850px;
+    margin: auto;
+    position: relative;
+}
+
+textarea {
+    width: 100%;
+    min-height: 58px;
+    max-height: 160px;
+    resize: none;
+    border: 1px solid #444;
+    border-radius: 14px;
+    background: #2f2f2f;
+    color: white;
+    padding: 17px 105px 17px 18px;
+    font-size: 15px;
+    outline: none;
+    font-family: Arial, sans-serif;
+}
+
+textarea:focus {
+    border-color: #20c997;
+}
+
+textarea::placeholder {
+    color: #888;
+}
+
+.buttons {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    gap: 6px;
+}
+
+.icon-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.icon-btn:hover {
+    background: #444;
+    color: white;
+}
+
+.send-btn {
+    background: #20c997;
+    color: #111;
+}
+
+.send-btn:hover {
+    background: #27dfaa;
+}
+
+.voice-btn.recording {
+    background: #d9534f;
+    color: white;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+
+    50% {
+        transform: scale(1.08);
+    }
+
+}
+
+.footer-text {
+    text-align: center;
+    color: #666;
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+
+/* ================= CROP RECOMMENDATION ================= */
+
+#cropPanel {
+    display: none;
+    max-width: 900px;
+    margin: 20px auto 40px;
+    padding: 24px;
+    background: #181818;
+    border: 1px solid #343434;
+    border-radius: 16px;
+}
+
+.crop-header { text-align:center; margin-bottom:20px; }
+.crop-header h2 { margin-bottom:8px; }
+.crop-header p { color:#999; font-size:14px; }
+.crop-modes { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+.crop-mode-btn { padding:13px; border:1px solid #444; border-radius:9px; background:#242424; color:#ddd; cursor:pointer; }
+.crop-mode-btn.active { border-color:#20c997; color:#20c997; background:#20352f; }
+.crop-voice { display:flex; gap:10px; margin-bottom:18px; }
+.crop-voice select { flex:1; padding:12px; border-radius:9px; background:#242424; color:#fff; border:1px solid #444; }
+.crop-voice button { padding:12px 18px; border-radius:9px; background:#20352f; color:#20c997; border:1px solid #20c997; cursor:pointer; }
+.crop-form { padding:20px; background:#212121; border:1px solid #363636; border-radius:13px; }
+.crop-form h3 { margin-bottom:7px; }
+.crop-subtitle { color:#999; font-size:13px; margin-bottom:18px; }
+.crop-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+.crop-field { display:flex; flex-direction:column; gap:7px; }
+.crop-field label { font-size:13px; color:#ccc; }
+.crop-field input, .crop-field select { width:100%; padding:12px; border-radius:8px; border:1px solid #444; background:#171717; color:#fff; outline:none; }
+.crop-field input:focus, .crop-field select:focus { border-color:#20c997; }
+.crop-submit-btn { width:100%; margin-top:20px; padding:14px; border:0; border-radius:9px; background:#20c997; color:#111; font-weight:bold; font-size:15px; cursor:pointer; }
+.crop-submit-btn:hover { background:#27dfaa; }
+.crop-submit-btn:disabled { background:#555; color:#bbb; cursor:not-allowed; }
+.crop-result { margin-top:18px; padding:18px; border-radius:11px; background:#171717; border:1px solid #333; }
+#recommendedCrop { color:#20c997; font-size:20px; font-weight:bold; margin-bottom:8px; }
+#cropReason { line-height:1.6; margin-bottom:8px; }
+#cropDetails { color:#888; font-size:12px; line-height:1.6; }
+
+@media (max-width:700px) {
+    .crop-grid { grid-template-columns:1fr; }
+    .crop-modes { grid-template-columns:1fr; }
+    .crop-voice { flex-direction:column; }
+    #cropPanel { margin:10px 0 25px; padding:15px; }
+}
+
+/* ================= RICE DISEASE DETECTION (ADDED) ================= */
+#diseasePanel { display:none; flex:1; min-height:0; overflow-y:auto; padding:24px 8%; }
+.disease-card { max-width:850px; margin:10px auto 30px; padding:24px; background:#181818; border:1px solid #343434; border-radius:16px; }
+.disease-header { text-align:center; margin-bottom:20px; }
+.disease-header h2 { margin-bottom:8px; }
+.disease-header p { color:#999; font-size:14px; line-height:1.5; }
+.disease-upload-box { padding:20px; border:1px dashed #20c997; border-radius:12px; background:#202a26; text-align:center; }
+#riceLeafImage { display:block; width:100%; max-width:340px; margin:0 auto 14px; color:#ddd; }
+#riceImagePreview { display:none; max-width:100%; max-height:280px; margin:14px auto 0; border-radius:10px; object-fit:contain; }
+.disease-detect-btn { width:100%; margin-top:16px; padding:14px; border:0; border-radius:9px; background:#20c997; color:#111; font-weight:bold; font-size:15px; cursor:pointer; }
+.disease-detect-btn:disabled { background:#555; color:#bbb; cursor:not-allowed; }
+#diseaseResult { display:none; margin-top:18px; padding:16px; border:1px solid #3a5149; border-radius:10px; background:#1b2421; overflow-wrap:anywhere; }
+#diseaseName { color:#20c997; font-weight:bold; font-size:18px; margin-bottom:8px; }
+#diseaseConfidence { color:#e3e8e5; margin-bottom:8px; }
+#diseaseMessage { color:#9ba8a2; font-size:13px; line-height:1.5; }
+@media (max-width:700px) { #diseasePanel { padding:15px; } .disease-card { padding:16px; } }
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+
+    .sidebar {
+        width: 210px;
+    }
+
+    .main {
+        margin-left: 210px;
+    }
+
+    .hologram-container {
+        right: 10px;
+        transform: scale(0.8);
+        transform-origin: bottom right;
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        margin-left: 0;
+    }
+
+    .chat-area {
+        padding: 25px 15px;
+    }
+
+    .input-section {
+        padding: 10px 15px 15px;
+    }
+
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    .hologram-container {
+        right: 0;
+        bottom: 100px;
+        transform: scale(0.65);
+        transform-origin: bottom right;
+        opacity: 0.8;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+
+<div class="logo">
+     AgriGpt <span>AI</span>
+</div>
+
+<button class="new-chat" onclick="newChat()">
+    ＋ New Chat
+</button>
+
+<div class="menu-title">
+    Agriculture
+</div>
+
+<div class="menu-item active" id="assistantMenu" onclick="showAssistant()">
+     Agri Assistant
+</div>
+
+<div class="menu-item" id="cropMenu" onclick="showCropRecommendation()">
+     Crop Recommendation
+</div>
+
+<div class="menu-item" id="diseaseMenu" onclick="showDiseaseDetection()">
+     Disease Detection
+</div>
+
+<div class="menu-item coming">
+     Weather Prediction
+</div>
+
+<div class="menu-item coming">
+     Government Schemes
+</div>
+
+<div class="menu-item coming">
+     Farmer Connect
+</div>
+
+
+</div>
+
+<!-- ================= MAIN ================= -->
+
+<div class="main">
+
+
+<div class="topbar">
+
+    Agri Assistant
+
+    <div class="status">
+        <span class="status-dot"></span>
+        AI Online
+    </div>
+
+</div>
+
+<!-- ================= CHAT AREA ================= -->
+
+<div class="chat-area" id="chatArea">
+
+    <div class="welcome" id="welcome">
+
+        <h1>
+            Hi, Welcome to
+            <span>AgriGpt AI</span>
+        </h1>
+
+        <p>
+            Your multilingual AI assistant for smart farming.
+        </p>
+
+        <div class="suggestions">
+
+            <div class="suggestion"
+                 onclick="useSuggestion('What climate is suitable for rice cultivation?')">
+
+                <div class="suggestion-title">
+                     Rice Climate
+                </div>
+
+                <div class="suggestion-text">
+                    Ask about rice climate and cultivation suitability.
+                </div>
+
+            </div>
+
+            <div class="suggestion"
+                 onclick="useSuggestion('What soil is suitable for tomato cultivation?')">
+
+                <div class="suggestion-title">
+                     Tomato Soil
+                </div>
+
+                <div class="suggestion-text">
+                    Get tomato soil and cultivation advice.
+                </div>
+
+            </div>
+
+            <div class="suggestion"
+                 onclick="useSuggestion('What are common potato diseases?')">
+
+                <div class="suggestion-title">
+                    Potato Disease
+                </div>
+
+                <div class="suggestion-text">
+                    Ask about potato diseases and prevention.
+                </div>
+
+            </div>
+
+            <div class="suggestion"
+                 onclick="useSuggestion('How can I improve soil fertility?')">
+
+                <div class="suggestion-title">
+                     Soil Management
+                </div>
+
+                <div class="suggestion-text">
+                    Ask about soil, fertilizer and farming.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= CROP RECOMMENDATION PANEL ================= -->
+
+<div id="cropPanel">
+
+    <div class="crop-header">
+        <h2>🌱 Crop Recommendation</h2>
+        <p>Enter soil and weather details to get a crop recommendation.</p>
+    </div>
+
+    <div class="crop-modes">
+        <button id="mode1Btn" class="crop-mode-btn active" onclick="selectCropMode(1)">🧪 Mode 1 - Soil Test</button>
+        <button id="mode2Btn" class="crop-mode-btn" onclick="selectCropMode(2)">👨‍🌾 Mode 2 - Farmer Basic</button>
+    </div>
+
+    <div class="crop-voice">
+        <select id="cropVoiceLanguage">
+            <option value="en-IN">English</option>
+            <option value="ta-IN">தமிழ் (Tamil)</option>
+            <option value="tanglish">Tanglish</option>
+        </select>
+        <button type="button" onclick="startCropVoice()">🎤 Voice Input</button>
+    </div>
+
+    <div id="soilTestForm" class="crop-form">
+        <h3>🧪 Soil Test Based Recommendation</h3>
+        <p class="crop-subtitle">Enter all 7 values used by the trained Random Forest model.</p>
+
+        <div class="crop-grid">
+            <div class="crop-field"><label>Nitrogen (N)</label><input type="number" id="cropN" placeholder="Example: 90" step="any"></div>
+            <div class="crop-field"><label>Phosphorus (P)</label><input type="number" id="cropP" placeholder="Example: 42" step="any"></div>
+            <div class="crop-field"><label>Potassium (K)</label><input type="number" id="cropK" placeholder="Example: 43" step="any"></div>
+            <div class="crop-field"><label>Soil pH</label><input type="number" id="cropPH" placeholder="Example: 6.5" step="any"></div>
+            <div class="crop-field"><label>Temperature (°C)</label><input type="number" id="cropTemperature" placeholder="Example: 25" step="any"></div>
+            <div class="crop-field"><label>Humidity (%)</label><input type="number" id="cropHumidity" placeholder="Example: 80" step="any"></div>
+            <div class="crop-field"><label>Rainfall (mm)</label><input type="number" id="cropRainfall" placeholder="Example: 200" step="any"></div>
+        </div>
+
+        <button type="button" id="soilSubmitBtn" class="crop-submit-btn" onclick="analyzeSoilTest()">🌱 Get Crop Recommendation</button>
+    </div>
+
+    <div id="farmerBasicForm" class="crop-form" style="display:none;">
+        <h3>👨‍🌾 Farmer Basic Information</h3>
+        <p class="crop-subtitle">Give basic farming details for a simple recommendation.</p>
+        <div class="crop-grid">
+            <div class="crop-field"><label>Soil Type</label><select id="cropSoil"><option value="">Select Soil</option><option value="clay">Clay</option><option value="sandy">Sandy</option><option value="loamy">Loamy</option><option value="black">Black</option><option value="red">Red</option></select></div>
+            <div class="crop-field"><label>Season</label><select id="cropSeason"><option value="">Select Season</option><option value="kharif">Kharif / Monsoon</option><option value="rabi">Rabi / Winter</option><option value="summer">Summer</option></select></div>
+            <div class="crop-field"><label>Water Availability</label><select id="cropWater"><option value="">Select Water</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+            <div class="crop-field"><label>Previous Crop</label><input type="text" id="previousCrop" placeholder="Example: Rice"></div>
+            <div class="crop-field"><label>Location</label><input type="text" id="cropLocation" placeholder="Example: Tirunelveli"></div>
+        </div>
+        <button type="button" class="crop-submit-btn" onclick="getCropRecommendation()">🌾 Get Recommendation</button>
+    </div>
+
+    <div id="cropResult" class="crop-result">
+        <div id="recommendedCrop">🌱 Recommended Crop: -</div>
+        <div id="cropReason">Enter the details and click the submit button.</div>
+        <div id="cropDetails"></div>
+    </div>
+
+</div>
+
+<!-- ================= RICE LEAF DISEASE DETECTION (ADDED) ================= -->
+<div id="diseasePanel">
+    <div class="disease-card">
+        <div class="disease-header">
+            <h2>🍃 Rice Leaf Disease Detection</h2>
+            <p>Upload a clear photo of a rice leaf to check for one of the three diseases supported by the current model.</p>
+        </div>
+        <div class="disease-upload-box">
+            <label for="riceLeafImage" style="display:block;margin-bottom:12px;font-weight:bold;">Choose a rice leaf photo (JPG, JPEG or PNG)</label>
+            <input type="file" id="riceLeafImage" accept="image/jpeg,image/png,image/jpg,.jpg,.jpeg,.png">
+            <img id="riceImagePreview" alt="Selected rice leaf preview">
+            <button type="button" class="disease-detect-btn" id="detectDiseaseBtn" onclick="detectRiceDisease()">🔍 Detect Disease</button>
+        </div>
+        <div id="diseaseResult" role="status" aria-live="polite">
+            <div id="diseaseName">Predicted disease: -</div>
+            <div id="diseaseConfidence">Confidence: -</div>
+            <div id="diseaseMessage">Select a photo and click Detect Disease.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= HOLOGRAM ================= -->
+
+<div class="hologram-container" id="hologramContainer">
+
+    <div class="hologram" id="hologram">
+
+        <div class="scan-line"></div>
+
+        <div class="holo-head">
+
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+
+            <div class="nose"></div>
+
+            <div class="holo-mouth idle"></div>
+
+        </div>
+
+        <div class="holo-body">
+
+            <div class="chest"></div>
+
+        </div>
+
+        <div class="holo-base"></div>
+
+    </div>
+
+</div>
+
+<!-- ================= INPUT ================= -->
+
+<div class="input-section">
+
+    <div style="max-width:850px;margin:0 auto 8px;display:flex;justify-content:flex-end;align-items:center;gap:8px;">
+        <label for="assistantLanguage" style="font-size:12px;color:#aaa;">Answer language:</label>
+        <select id="assistantLanguage" style="background:#2f2f2f;color:#eee;border:1px solid #444;border-radius:8px;padding:7px;">
+            <option value="auto">Same language as my question</option>
+            <option value="ta">தமிழ் (Tamil)</option>
+            <option value="en">English</option>
+            <option value="tanglish">Tanglish</option>
+        </select>
+    </div>
+
+    <div class="input-box">
+
+        <textarea
+            id="userInput"
+            placeholder="Ask any agriculture question..."
+            rows="1"></textarea>
+
+        <div class="buttons">
+
+            <button
+                class="icon-btn voice-btn"
+                id="voiceBtn"
+                onclick="startVoice()"
+                title="Voice input">
+                🎤
+            </button>
+
+            <button
+                class="icon-btn send-btn"
+                onclick="askAI()"
+                title="Send">
+                ➤
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="footer-text">
+        AgriGpt AI can make mistakes.Check important info.
+    </div>
+
+</div>
+
+
+</div>
+
+<script>
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const input =
+    document.getElementById("userInput");
+
+const chatArea =
+    document.getElementById("chatArea");
+
+const hologramContainer =
+    document.getElementById("hologramContainer");
+
+const hologram =
+    document.getElementById("hologram");
+
+const voiceBtn =
+    document.getElementById("voiceBtn");
+
+let lipSyncInterval = null;
+
+
+/* =====================================================
+   CROP + AGRICULTURE KNOWLEDGE MAP
+===================================================== */
+
+const agricultureTopics = {
+
+    rice: [
+        "rice",
+        "paddy",
+        "nel",
+        "நெல்",
+        "நெற்பயிர்",
+        "அரிசி",
+        "rice cultivation",
+        "rice climate",
+        "rice soil",
+        "rice disease",
+        "rice blast",
+        "bacterial leaf blight",
+        "brown spot",
+        "rice tungro"
+    ],
+
+    tomato: [
+        "tomato",
+        "தக்காளி",
+        "tomato cultivation",
+        "tomato climate",
+        "tomato soil",
+        "tomato disease",
+        "tomato pest",
+        "tomato leaf curl",
+        "early blight",
+        "late blight",
+        "bacterial wilt"
+    ],
+
+    potato: [
+        "potato",
+        "உருளைக்கிழங்கு",
+        "potato cultivation",
+        "potato climate",
+        "potato soil",
+        "potato disease",
+        "potato pest",
+        "potato early blight",
+        "potato late blight",
+        "potato bacterial wilt",
+        "potato scab"
+    ],
+
+    maize: [
+        "maize",
+        "corn",
+        "சோளம்",
+        "மக்காச்சோளம்",
+        "maize cultivation",
+        "maize climate",
+        "maize soil",
+        "maize disease",
+        "maize pest"
+    ],
+
+    wheat: [
+        "wheat",
+        "கோதுமை",
+        "wheat cultivation",
+        "wheat climate",
+        "wheat soil",
+        "wheat disease",
+        "wheat pest"
+    ],
+
+    sugarcane: [
+        "sugarcane",
+        "கரும்பு",
+        "sugarcane cultivation",
+        "sugarcane climate",
+        "sugarcane soil",
+        "sugarcane disease",
+        "sugarcane pest"
+    ],
+
+    cotton: [
+        "cotton",
+        "பருத்தி",
+        "cotton cultivation",
+        "cotton climate",
+        "cotton soil",
+        "cotton disease",
+        "cotton pest"
+    ],
+
+    groundnut: [
+        "groundnut",
+        "peanut",
+        "வேர்க்கடலை",
+        "groundnut cultivation",
+        "groundnut climate",
+        "groundnut soil",
+        "groundnut disease",
+        "groundnut pest"
+    ],
+
+    onion: [
+        "onion",
+        "வெங்காயம்",
+        "onion cultivation",
+        "onion climate",
+        "onion soil",
+        "onion disease",
+        "onion pest"
+    ],
+
+    chilli: [
+        "chilli",
+        "chili",
+        "மிளகாய்",
+        "chilli cultivation",
+        "chilli climate",
+        "chilli soil",
+        "chilli disease",
+        "chilli pest"
+    ],
+
+    brinjal: [
+        "brinjal",
+        "eggplant",
+        "கத்தரிக்காய்",
+        "brinjal cultivation",
+        "brinjal climate",
+        "brinjal soil",
+        "brinjal disease",
+        "brinjal pest"
+    ],
+
+    banana: [
+        "banana",
+        "வாழை",
+        "banana cultivation",
+        "banana climate",
+        "banana soil",
+        "banana disease",
+        "banana pest"
+    ],
+
+    general: [
+        "agriculture",
+        "farming",
+        "farmer",
+        "crop",
+        "soil",
+        "fertilizer",
+        "fertiliser",
+        "irrigation",
+        "water",
+        "seed",
+        "sowing",
+        "planting",
+        "nursery",
+        "harvesting",
+        "harvest",
+        "pest",
+        "disease",
+        "weed",
+        "weeding",
+        "compost",
+        "organic farming",
+        "cultivation",
+        "yield",
+        "weather",
+        "rainfall",
+        "humidity",
+        "temperature",
+        "nutrient",
+        "nutrition",
+        "crop rotation",
+
+        "விவசாயம்",
+        "விவசாயி",
+        "பயிர்",
+        "மண்",
+        "உரம்",
+        "நீர்",
+        "நீர்ப்பாசனம்",
+        "விதை",
+        "விதைப்பு",
+        "நடவு",
+        "அறுவடை",
+        "பூச்சி",
+        "நோய்",
+        "களை",
+        "மழை",
+        "வானிலை",
+        "ஈரப்பதம்",
+        "வெப்பநிலை",
+        "சத்து",
+        "சாகுபடி"
+    ]
+
+};
+
+
+/* =====================================================
+   DETECT CROP
+===================================================== */
+
+function detectAgricultureTopic(question) {
+
+    const text =
+        question.toLowerCase();
+
+    const cropOrder = [
+        "rice",
+        "tomato",
+        "potato",
+        "maize",
+        "wheat",
+        "sugarcane",
+        "cotton",
+        "groundnut",
+        "onion",
+        "chilli",
+        "brinjal",
+        "banana"
+    ];
+
+    for (const crop of cropOrder) {
+
+        for (const keyword of agricultureTopics[crop]) {
+
+            if (
+                text.includes(
+                    keyword.toLowerCase()
+                )
+            ) {
+                return crop;
+            }
+
+        }
+
+    }
+
+    return "general";
+}
+
+
+/* =====================================================
+   DETECT QUESTION TYPE
+===================================================== */
+
+function detectQuestionType(question) {
+
+    const text =
+        question.toLowerCase();
+
+    /* Climate */
+
+    if (
+        text.includes("climate") ||
+        text.includes("weather") ||
+        text.includes("temperature") ||
+        text.includes("humidity") ||
+        text.includes("rainfall") ||
+        text.includes("season") ||
+        text.includes("suitable climate") ||
+        text.includes("climate suitable") ||
+        text.includes("வானிலை") ||
+        text.includes("வெப்பநிலை") ||
+        text.includes("ஈரப்பதம்") ||
+        text.includes("மழை") ||
+        text.includes("பருவம்")
+    ) {
+        return "climate";
+    }
+
+
+    /* Soil */
+
+    if (
+        text.includes("soil") ||
+        text.includes("soil type") ||
+        text.includes("soil suitable") ||
+        text.includes("மண்") ||
+        text.includes("மண் வகை")
+    ) {
+        return "soil";
+    }
+
+
+    /* Disease */
+
+    if (
+        text.includes("disease") ||
+        text.includes("diseases") ||
+        text.includes("symptom") ||
+        text.includes("symptoms") ||
+        text.includes("blast") ||
+        text.includes("blight") ||
+        text.includes("wilt") ||
+        text.includes("tungro") ||
+        text.includes("brown spot") ||
+        text.includes("leaf curl") ||
+        text.includes("நோய்") ||
+        text.includes("அறிகுறி")
+    ) {
+        return "disease";
+    }
+
+
+    /* Pest */
+
+    if (
+        text.includes("pest") ||
+        text.includes("insect") ||
+        text.includes("insects") ||
+        text.includes("பூச்சி") ||
+        text.includes("பூச்சிகள்")
+    ) {
+        return "pest";
+    }
+
+
+    /* Fertilizer */
+
+    if (
+        text.includes("fertilizer") ||
+        text.includes("fertiliser") ||
+        text.includes("manure") ||
+        text.includes("urea") ||
+        text.includes("npk") ||
+        text.includes("உரம்") ||
+        text.includes("சத்து")
+    ) {
+        return "fertilizer";
+    }
+
+
+    /* Water / Irrigation */
+
+    if (
+        text.includes("irrigation") ||
+        text.includes("water") ||
+        text.includes("watering") ||
+        text.includes("நீர்ப்பாசனம்") ||
+        text.includes("நீர்")
+    ) {
+        return "water";
+    }
+
+
+    /* Seed */
+
+    if (
+        text.includes("seed") ||
+        text.includes("seed selection") ||
+        text.includes("seed treatment") ||
+        text.includes("விதை")
+    ) {
+        return "seed";
+    }
+
+
+    /* Cultivation */
+
+    if (
+        text.includes("cultivat") ||
+        text.includes("grow") ||
+        text.includes("growing") ||
+        text.includes("plant") ||
+        text.includes("planting") ||
+        text.includes("sowing") ||
+        text.includes("cultivate") ||
+        text.includes("சாகுபடி") ||
+        text.includes("நடவு") ||
+        text.includes("விதைப்பு")
+    ) {
+        return "cultivation";
+    }
+
+
+    /* Harvest */
+
+    if (
+        text.includes("harvest") ||
+        text.includes("harvesting") ||
+        text.includes("storage") ||
+        text.includes("அறுவடை")
+    ) {
+        return "harvest";
+    }
+
+
+    return "general";
+}
+
+
+/* =====================================================
+   AGRICULTURE QUESTION CHECK
+===================================================== */
+
+function isAgricultureQuestion(question) {
+
+    const text =
+        question.toLowerCase();
+
+    const agricultureKeywords = [
+
+        /* Crops */
+
+        "agriculture",
+        "farming",
+        "farmer",
+        "crop",
+        "rice",
+        "paddy",
+        "tomato",
+        "potato",
+        "maize",
+        "corn",
+        "wheat",
+        "sugarcane",
+        "cotton",
+        "groundnut",
+        "peanut",
+        "onion",
+        "chilli",
+        "chili",
+        "brinjal",
+        "eggplant",
+        "banana",
+
+        /* Agriculture topics */
+
+        "soil",
+        "fertilizer",
+        "fertiliser",
+        "manure",
+        "irrigation",
+        "water",
+        "seed",
+        "sowing",
+        "planting",
+        "nursery",
+        "harvesting",
+        "harvest",
+        "storage",
+        "pest",
+        "disease",
+        "weed",
+        "weeding",
+        "compost",
+        "organic farming",
+        "cultivation",
+        "cultivate",
+        "yield",
+        "weather",
+        "rainfall",
+        "humidity",
+        "temperature",
+        "nutrient",
+        "nutrition",
+        "crop rotation",
+        "climate",
+        "season",
+
+        /* Diseases */
+
+        "blast",
+        "blight",
+        "wilt",
+        "tungro",
+        "brown spot",
+        "leaf curl",
+        "scab",
+
+        /* Tamil */
+
+        "விவசாயம்",
+        "விவசாயி",
+        "பயிர்",
+        "நெல்",
+        "நெற்பயிர்",
+        "தக்காளி",
+        "உருளைக்கிழங்கு",
+        "சோளம்",
+        "மக்காச்சோளம்",
+        "கோதுமை",
+        "கரும்பு",
+        "பருத்தி",
+        "வேர்க்கடலை",
+        "வெங்காயம்",
+        "மிளகாய்",
+        "கத்தரிக்காய்",
+        "வாழை",
+        "மண்",
+        "உரம்",
+        "நீர்",
+        "நீர்ப்பாசனம்",
+        "விதை",
+        "விதைப்பு",
+        "நடவு",
+        "அறுவடை",
+        "பூச்சி",
+        "நோய்",
+        "களை",
+        "மழை",
+        "வானிலை",
+        "ஈரப்பதம்",
+        "வெப்பநிலை",
+        "சாகுபடி"
+    ];
+
+    return agricultureKeywords.some(
+        keyword =>
+            text.includes(
+                keyword.toLowerCase()
+            )
+    );
+}
+
+
+/* =====================================================
+   BUILD BETTER RETRIEVAL QUESTION
+===================================================== */
+
+function buildRetrievalQuestion(question) {
+
+    const crop =
+        detectAgricultureTopic(question);
+
+    const type =
+        detectQuestionType(question);
+
+    const cropNames = {
+
+        rice: "rice paddy",
+
+        tomato: "tomato",
+
+        potato: "potato",
+
+        maize: "maize corn",
+
+        wheat: "wheat",
+
+        sugarcane: "sugarcane",
+
+        cotton: "cotton",
+
+        groundnut: "groundnut peanut",
+
+        onion: "onion",
+
+        chilli: "chilli",
+
+        brinjal: "brinjal eggplant",
+
+        banana: "banana",
+
+        general: "general agriculture"
+
+    };
+
+
+    const typeNames = {
+
+        climate:
+            "climate weather temperature humidity rainfall season climate suitability",
+
+        soil:
+            "soil soil type soil suitability soil management",
+
+        disease:
+            "disease diseases symptoms prevention disease management",
+
+        pest:
+            "pest insect pest management prevention",
+
+        fertilizer:
+            "fertilizer fertiliser manure nutrients NPK",
+
+        water:
+            "irrigation water management watering",
+
+        seed:
+            "seed selection seed treatment sowing",
+
+        cultivation:
+            "cultivation growing planting sowing crop management",
+
+        harvest:
+            "harvesting harvest storage post harvest",
+
+        general:
+            "agriculture farming cultivation"
+
+    };
+
+
+    /*
+       This does NOT replace the user's question.
+
+       It adds useful keywords so the RAG
+       retrieval can find the correct section.
+    */
+
+    return (
+        question +
+        " | Crop: " +
+        cropNames[crop] +
+        " | Topic: " +
+        typeNames[type]
+    );
+}
+
+
+/* =====================================================
+   LANGUAGE DETECTION
+===================================================== */
+
+function detectLanguage(text) {
+
+    if (
+        /[\u0B80-\u0BFF]/.test(text)
+    ) {
+        return "ta-IN";
+    }
+
+    return "en-IN";
+}
+
+
+/* =====================================================
+   GREETING
+===================================================== */
+
+function isGreeting(question) {
+
+    const text =
+        question
+            .toLowerCase()
+            .trim()
+            .replace(/[!?.,]/g, "");
+
+    const greetings = [
+
+        "hi",
+        "hii",
+        "hiii",
+        "hello",
+        "hey",
+        "hai",
+        "heyy",
+        "vanakkam",
+        "வணக்கம்",
+        "ஹாய்",
+        "ஹலோ"
+
+    ];
+
+    return greetings.includes(text);
+}
+
+
+/* =====================================================
+   TEXTAREA
+===================================================== */
+
+input.addEventListener(
+    "input",
+    function() {
+
+        this.style.height =
+            "auto";
+
+        this.style.height =
+            Math.min(
+                this.scrollHeight,
+                160
+            ) + "px";
+
+    }
+);
+
+
+/* =====================================================
+   ENTER TO SEND
+===================================================== */
+
+input.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+
+            event.preventDefault();
+
+            askAI();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   SUGGESTION
+===================================================== */
+
+function useSuggestion(text) {
+
+    input.value = text;
+
+    input.dispatchEvent(
+        new Event("input")
+    );
+
+    askAI();
+}
+
+
+/* =====================================================
+   USER MESSAGE
+===================================================== */
+
+function addUserMessage(text) {
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message";
+
+    message.innerHTML = `
+
+        <div class="avatar user-avatar">
+            👤
+        </div>
+
+        <div>
+
+            <div class="message-name">
+                You
+            </div>
+
+            <div class="message-content"></div>
+
+        </div>
+
+    `;
+
+    message
+        .querySelector(
+            ".message-content"
+        )
+        .textContent = text;
+
+    chatArea.appendChild(message);
+
+    scrollToBottom();
+}
+
+
+/* =====================================================
+   AI MESSAGE
+===================================================== */
+
+function addAIMessage(text) {
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message";
+
+    message.innerHTML = `
+
+        <div class="avatar ai-avatar">
+            
+        </div>
+
+        <div>
+
+            <div class="message-name">
+                AgriGpt
+            </div>
+
+            <div class="message-content"></div>
+
+        </div>
+
+    `;
+
+    message
+        .querySelector(
+            ".message-content"
+        )
+        .textContent = text;
+
+    chatArea.appendChild(message);
+
+    scrollToBottom();
+}
+
+
+/* =====================================================
+   THINKING
+===================================================== */
+
+function showThinking() {
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message";
+
+    message.id =
+        "thinkingMessage";
+
+    message.innerHTML = `
+
+        <div class="avatar ai-avatar">
+            
+        </div>
+
+        <div>
+
+            <div class="message-name">
+                AgriGpt
+            </div>
+
+            <div class="thinking">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+        </div>
+
+    `;
+
+    chatArea.appendChild(message);
+
+    scrollToBottom();
+}
+
+
+function removeThinking() {
+
+    const thinking =
+        document.getElementById(
+            "thinkingMessage"
+        );
+
+    if (thinking) {
+        thinking.remove();
+    }
+}
+
+
+/* =====================================================
+   SCROLL
+===================================================== */
+
+function scrollToBottom() {
+
+    chatArea.scrollTop =
+        chatArea.scrollHeight;
+}
+
+
+/* =====================================================
+   HOLOGRAM
+===================================================== */
+
+function showHologram() {
+
+    hologramContainer.classList.add(
+        "visible"
+    );
+}
+
+
+function hideHologram() {
+
+    hologramContainer.classList.remove(
+        "visible"
+    );
+}
+
+
+/* =====================================================
+   HOLOGRAM SPEAKING
+===================================================== */
+
+function startHologramSpeaking() {
+
+    showHologram();
+
+    const mouth =
+        document.querySelector(
+            ".holo-mouth"
+        );
+
+    if (!mouth) {
+        return;
+    }
+
+    if (lipSyncInterval) {
+
+        clearInterval(
+            lipSyncInterval
+        );
+
+    }
+
+    const mouthShapes = [
+
+        "lip-1",
+        "lip-2",
+        "lip-3",
+        "lip-4",
+        "lip-5",
+        "lip-2",
+        "lip-6",
+        "lip-3"
+
+    ];
+
+    let lastShape = -1;
+
+    lipSyncInterval =
+        setInterval(
+            function() {
+
+                let randomShape;
+
+                do {
+
+                    randomShape =
+                        Math.floor(
+                            Math.random() *
+                            mouthShapes.length
+                        );
+
+                } while (
+                    randomShape ===
+                    lastShape
+                );
+
+                lastShape =
+                    randomShape;
+
+                mouth.className =
+                    "holo-mouth " +
+                    mouthShapes[
+                        randomShape
+                    ];
+
+            },
+            90
+        );
+}
+
+
+/* =====================================================
+   STOP HOLOGRAM
+===================================================== */
+
+function stopHologramSpeaking() {
+
+    if (lipSyncInterval) {
+
+        clearInterval(
+            lipSyncInterval
+        );
+
+        lipSyncInterval = null;
+    }
+
+    const mouth =
+        document.querySelector(
+            ".holo-mouth"
+        );
+
+    if (mouth) {
+
+        mouth.className =
+            "holo-mouth idle";
+
+    }
+}
+
+
+/* =====================================================
+   TEXT TO SPEECH
+===================================================== */
+
+function speakAnswer(text) {
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+        return;
+    }
+
+    speechSynthesis.cancel();
+
+    const speech =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+    const selectedLanguage = (document.getElementById("assistantLanguage") || {value:"auto"}).value;
+    const voiceLanguage = selectedLanguage === "ta" ? "ta-IN" :
+        (selectedLanguage === "en" ? "en-IN" :
+        (selectedLanguage === "tanglish" ? "en-IN" : detectLanguage(text)));
+    speech.lang = voiceLanguage;
+
+    // Prefer an installed voice matching the chosen language. This changes voice
+    // selection only; the backend must return Tamil text for Tamil speech.
+    const availableVoices = speechSynthesis.getVoices();
+    const matchingVoice = availableVoices.find(v =>
+        v.lang && v.lang.toLowerCase() === voiceLanguage.toLowerCase()
+    ) || availableVoices.find(v =>
+        v.lang && v.lang.toLowerCase().startsWith(voiceLanguage.split("-")[0].toLowerCase())
+    );
+    if (matchingVoice) speech.voice = matchingVoice;
+
+    speech.rate = 0.95;
+
+    speech.pitch = 1;
+
+    speech.volume = 1;
+
+
+    speech.onstart =
+        function() {
+
+            startHologramSpeaking();
+
+        };
+
+
+    speech.onend =
+        function() {
+
+            stopHologramSpeaking();
+
+            setTimeout(
+                function() {
+
+                    hideHologram();
+
+                },
+                1500
+            );
+
+        };
+
+
+    speech.onerror =
+        function() {
+
+            stopHologramSpeaking();
+
+            hideHologram();
+
+        };
+
+
+    speechSynthesis.speak(
+        speech
+    );
+}
+
+
+/* =====================================================
+   MAIN ASK AI
+===================================================== */
+
+async function askAI() {
+
+    const question =
+        input.value.trim();
+
+
+    if (!question) {
+        return;
+    }
+
+
+    /* Hide welcome */
+
+    const currentWelcome =
+        document.getElementById(
+            "welcome"
+        );
+
+    if (currentWelcome) {
+
+        currentWelcome.style.display =
+            "none";
+
+    }
+
+
+    /* Add user message */
+
+    addUserMessage(
+        question
+    );
+
+
+    /* Clear input */
+
+    input.value = "";
+
+    input.style.height =
+        "58px";
+
+
+    /* =================================================
+       GREETING
+    ================================================= */
+
+    if (
+        isGreeting(question)
+    ) {
+
+        const greetingAnswer =
+            "Hi! How can I help you with agriculture? ";
+
+        addAIMessage(
+            greetingAnswer
+        );
+
+        speakAnswer(
+            greetingAnswer
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       AGRICULTURE CHECK
+    ================================================= */
+
+    if (
+        !isAgricultureQuestion(
+            question
+        )
+    ) {
+
+        const limitedAnswer =
+            "Sorry, I can answer agriculture-related questions only.";
+
+        addAIMessage(
+            limitedAnswer
+        );
+
+        speakAnswer(
+            limitedAnswer
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       AGRICULTURE QUESTION
+    ================================================= */
+
+    showThinking();
+
+    showHologram();
+
+
+    /* Detect crop */
+
+    const detectedTopic =
+        detectAgricultureTopic(
+            question
+        );
+
+
+    /* Detect question type */
+
+    const detectedQuestionType =
+        detectQuestionType(
+            question
+        );
+
+
+    /*
+       IMPORTANT:
+
+       The original question is preserved.
+
+       We only add crop/topic keywords
+       for better RAG retrieval.
+    */
+
+    const retrievalQuestion =
+        buildRetrievalQuestion(
+            question
+        );
+
+
+    console.log(
+        "AgriGpt Crop:",
+        detectedTopic
+    );
+
+    console.log(
+        "AgriGpt Question Type:",
+        detectedQuestionType
+    );
+
+    console.log(
+        "AgriGpt Retrieval:",
+        retrievalQuestion
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "http://127.0.0.1:5001/api/ask",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            /*
+                               Send enhanced retrieval
+                               query to backend.
+                            */
+
+                            question:
+                                retrievalQuestion,
+
+                            /*
+                               Keep original question
+                               separately.
+                            */
+
+                            original_question:
+                                question,
+
+                            /*
+                               Crop detected.
+                            */
+
+                            agriculture_topic:
+                                detectedTopic,
+
+                            /*
+                               Question category.
+                            */
+
+                            question_type:
+                                detectedQuestionType,
+
+                            response_language:
+                                (document.getElementById("assistantLanguage") || {value:"auto"}).value,
+
+                            language_instruction:
+                                "IMPORTANT: The selected response_language is mandatory. If it is ta, answer entirely in natural Tamil script (தமிழ்), not English. If it is tanglish, answer in simple Romanized Tamil. If it is en, answer in English. Do not ignore this selection. Use original_question to understand the farmer's question."
+
+                        })
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Backend returned HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        removeThinking();
+
+
+        const answer =
+            data.answer ||
+            data.response ||
+            data.message ||
+            "Sorry, I could not find a suitable agriculture answer.";
+
+
+        addAIMessage(
+            answer
+        );
+
+
+        speakAnswer(
+            answer
+        );
+
+
+        console.log(
+            "AgriGpt Response:",
+            data
+        );
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "AgriGPt Backend Error:",
+            error
+        );
+
+
+        removeThinking();
+
+
+        const errorMessage =
+            "Backend connection failed. Please make sure the Flask server is running on http://127.0.0.1:5001";
+
+
+        addAIMessage(
+            errorMessage
+        );
+
+
+        stopHologramSpeaking();
+
+        hideHologram();
+
+    }
+
+}
+
+
+/* =====================================================
+   VOICE INPUT
+===================================================== */
+
+function startVoice() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Voice recognition is not supported in this browser. Please use Google Chrome."
+        );
+
+        return;
+    }
+
+
+    const recognition =
+        new SpeechRecognition();
+
+
+    const selectedLanguage = (document.getElementById("assistantLanguage") || {value:"auto"}).value;
+    recognition.lang = selectedLanguage === "ta" ? "ta-IN" : "en-IN";
+
+    recognition.continuous =
+        false;
+
+    recognition.interimResults =
+        false;
+
+
+    voiceBtn.classList.add(
+        "recording"
+    );
+
+    voiceBtn.textContent =
+        "🔴";
+
+
+    recognition.onstart =
+        function() {
+
+            input.placeholder =
+                "Listening... Speak your question";
+
+        };
+
+
+    recognition.onresult =
+        function(event) {
+
+            const transcript =
+                event.results[0][0]
+                    .transcript;
+
+
+            input.value =
+                transcript;
+
+
+            input.dispatchEvent(
+                new Event("input")
+            );
+
+
+            voiceBtn.classList.remove(
+                "recording"
+            );
+
+            voiceBtn.textContent =
+                "🎤";
+
+
+            input.placeholder =
+                "Ask any agriculture question...";
+
+
+            askAI();
+
+        };
+
+
+    recognition.onerror =
+        function(event) {
+
+            console.error(
+                "Voice error:",
+                event.error
+            );
+
+
+            voiceBtn.classList.remove(
+                "recording"
+            );
+
+            voiceBtn.textContent =
+                "🎤";
+
+
+            input.placeholder =
+                "Ask any agriculture question...";
+
+        };
+
+
+    recognition.onend =
+        function() {
+
+            voiceBtn.classList.remove(
+                "recording"
+            );
+
+            voiceBtn.textContent =
+                "🎤";
+
+
+            input.placeholder =
+                "Ask any agriculture question...";
+
+        };
+
+
+    recognition.start();
+
+}
+
+
+/* =====================================================
+   NEW CHAT
+===================================================== */
+
+function newChat() {
+
+    const cropPanel = document.getElementById("cropPanel");
+    if (cropPanel) cropPanel.style.display = "none";
+    const diseasePanel = document.getElementById("diseasePanel");
+    if (diseasePanel) diseasePanel.style.display = "none";
+    const diseaseMenu = document.getElementById("diseaseMenu");
+    if (diseaseMenu) diseaseMenu.classList.remove("active");
+    const chatAreaElement = document.getElementById("chatArea");
+    if (chatAreaElement) chatAreaElement.style.display = "block";
+    const inputSection = document.querySelector(".input-section");
+    if (inputSection) inputSection.style.display = "block";
+    const assistantMenu = document.getElementById("assistantMenu");
+    const cropMenu = document.getElementById("cropMenu");
+    if (assistantMenu) assistantMenu.classList.add("active");
+    if (cropMenu) cropMenu.classList.remove("active");
+    const topbar = document.querySelector(".topbar");
+    if (topbar) topbar.firstChild.textContent = "Agri Assistant";
+
+    if (
+        "speechSynthesis" in window
+    ) {
+
+        speechSynthesis.cancel();
+
+    }
+
+
+    stopHologramSpeaking();
+
+    hideHologram();
+
+
+    chatArea.innerHTML = `
+
+        <div class="welcome" id="welcome">
+
+            <h1>
+                 Hi, Welcome to
+                <span> AgriGpt AI</span>
+            </h1>
+
+            <p>
+                Your multilingual AI assistant for smart farming.
+            </p>
+
+            <div class="suggestions">
+
+                <div class="suggestion"
+                     onclick="useSuggestion('What climate is suitable for rice cultivation?')">
+
+                    <div class="suggestion-title">
+                         Rice Climate
+                    </div>
+
+                    <div class="suggestion-text">
+                        Ask about rice climate and cultivation suitability.
+                    </div>
+
+                </div>
+
+
+                <div class="suggestion"
+                     onclick="useSuggestion('What soil is suitable for tomato cultivation?')">
+
+                    <div class="suggestion-title">
+                         Tomato Soil
+                    </div>
+
+                    <div class="suggestion-text">
+                        Get tomato soil and cultivation advice.
+                    </div>
+
+                </div>
+
+
+                <div class="suggestion"
+                     onclick="useSuggestion('What are common potato diseases?')">
+
+                    <div class="suggestion-title">
+                        Potato Disease
+                    </div>
+
+                    <div class="suggestion-text">
+                        Ask about potato diseases and prevention.
+                    </div>
+
+                </div>
+
+
+                <div class="suggestion"
+                     onclick="useSuggestion('How can I improve soil fertility?')">
+
+                    <div class="suggestion-title">
+                         Soil Management
+                    </div>
+
+                    <div class="suggestion-text">
+                        Ask about soil, fertilizer and farming.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+
+
+/* =====================================================
+   CROP RECOMMENDATION
+===================================================== */
+
+function showCropRecommendation() {
+    const chatArea = document.getElementById("chatArea");
+    const inputSection = document.querySelector(".input-section");
+    const cropPanel = document.getElementById("cropPanel");
+    const diseasePanel = document.getElementById("diseasePanel");
+    const assistantMenu = document.getElementById("assistantMenu");
+    const cropMenu = document.getElementById("cropMenu");
+    const diseaseMenu = document.getElementById("diseaseMenu");
+
+    if (diseasePanel) diseasePanel.style.display = "none";
+    if (diseaseMenu) diseaseMenu.classList.remove("active");
+    if (chatArea) chatArea.style.display = "none";
+    if (inputSection) inputSection.style.display = "none";
+    if (cropPanel) cropPanel.style.display = "block";
+    if (assistantMenu) assistantMenu.classList.remove("active");
+    if (cropMenu) cropMenu.classList.add("active");
+
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    if (typeof stopHologramSpeaking === "function") stopHologramSpeaking();
+    if (typeof hideHologram === "function") hideHologram();
+
+    const topbar = document.querySelector(".topbar");
+    if (topbar && topbar.firstChild) topbar.firstChild.textContent = "Crop Recommendation";
+}
+
+function showAssistant() {
+    const chatArea = document.getElementById("chatArea");
+    const inputSection = document.querySelector(".input-section");
+    const cropPanel = document.getElementById("cropPanel");
+    const diseasePanel = document.getElementById("diseasePanel");
+    const assistantMenu = document.getElementById("assistantMenu");
+    const cropMenu = document.getElementById("cropMenu");
+    const diseaseMenu = document.getElementById("diseaseMenu");
+
+    if (diseasePanel) diseasePanel.style.display = "none";
+    if (diseaseMenu) diseaseMenu.classList.remove("active");
+    if (cropPanel) cropPanel.style.display = "none";
+    if (chatArea) chatArea.style.display = "block";
+    if (inputSection) inputSection.style.display = "block";
+    if (assistantMenu) assistantMenu.classList.add("active");
+    if (cropMenu) cropMenu.classList.remove("active");
+
+    const topbar = document.querySelector(".topbar");
+    if (topbar && topbar.firstChild) topbar.firstChild.textContent = "Agri Assistant";
+}
+
+function selectCropMode(mode) {
+    document.getElementById("mode1Btn").classList.toggle("active", mode === 1);
+    document.getElementById("mode2Btn").classList.toggle("active", mode === 2);
+    document.getElementById("soilTestForm").style.display = mode === 1 ? "block" : "none";
+    document.getElementById("farmerBasicForm").style.display = mode === 2 ? "block" : "none";
+}
+
+async function analyzeSoilTest() {
+    const N = parseFloat(document.getElementById("cropN").value);
+    const P = parseFloat(document.getElementById("cropP").value);
+    const K = parseFloat(document.getElementById("cropK").value);
+    const temperature = parseFloat(document.getElementById("cropTemperature").value);
+    const humidity = parseFloat(document.getElementById("cropHumidity").value);
+    const ph = parseFloat(document.getElementById("cropPH").value);
+    const rainfall = parseFloat(document.getElementById("cropRainfall").value);
+
+    if ([N,P,K,temperature,humidity,ph,rainfall].some(v => !Number.isFinite(v))) {
+        alert("Please fill all 7 values.");
+        return;
+    }
+
+    if (humidity < 0 || humidity > 100) { alert("Humidity should be between 0 and 100."); return; }
+    if (ph < 0 || ph > 14) { alert("Soil pH should be between 0 and 14."); return; }
+
+    const button = document.getElementById("soilSubmitBtn");
+    button.disabled = true;
+    button.textContent = "⏳ Predicting Crop...";
+    document.getElementById("recommendedCrop").textContent = "🌱 Recommended Crop: Predicting...";
+    document.getElementById("cropReason").textContent = "Random Forest model is analysing the values...";
+
+    try {
+        const response = await fetch("http://127.0.0.1:5001/api/crop-ml-recommendation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ N, P, K, temperature, humidity, ph, rainfall })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Prediction failed.");
+
+        const crop = data.recommended_crop || data.crop || data.prediction;
+        if (!crop) throw new Error("No crop prediction received from backend.");
+
+        document.getElementById("recommendedCrop").textContent = "🌱 Recommended Crop: " + crop;
+        document.getElementById("cropReason").textContent = data.reason || "Recommendation generated using the trained Random Forest model.";
+        document.getElementById("cropDetails").textContent = `N: ${N} | P: ${P} | K: ${K} | Temperature: ${temperature}°C | Humidity: ${humidity}% | pH: ${ph} | Rainfall: ${rainfall} mm`;
+        speakAnswer("The recommended crop is " + crop);
+
+    } catch (error) {
+        console.error(error);
+        document.getElementById("recommendedCrop").textContent = "⚠️ Prediction Failed";
+        document.getElementById("cropReason").textContent = error.message || "Could not connect to the crop model.";
+        document.getElementById("cropDetails").textContent = "Make sure Flask is running on port 5001 and crop_model.pkl is available.";
+    }
+
+    button.disabled = false;
+    button.textContent = "🌱 Get Crop Recommendation";
+}
+
+async function getCropRecommendation() {
+    const soil = document.getElementById("cropSoil").value;
+    const season = document.getElementById("cropSeason").value;
+    const water = document.getElementById("cropWater").value;
+    const previousCrop = document.getElementById("previousCrop").value.trim();
+    const location = document.getElementById("cropLocation").value.trim();
+    const resultBox = document.getElementById("cropResult");
+    const title = document.getElementById("recommendedCrop");
+    const reason = document.getElementById("cropReason");
+    const details = document.getElementById("cropDetails");
+    const button = document.querySelector('#farmerBasicForm .crop-submit-btn');
+
+    if (!soil || !season || !water) {
+        alert("Please select Soil Type, Season and Water Availability. Previous Crop and Location are optional.");
+        return;
+    }
+
+    resultBox.style.display = "block";
+    title.textContent = "⏳ Checking crop recommendation...";
+    reason.textContent = "Sending farmer details to Flask...";
+    details.textContent = "";
+    if (button) { button.disabled = true; button.textContent = "⏳ Please wait..."; }
+
+    try {
+        const response = await fetch("http://127.0.0.1:5001/api/crop-recommendation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                soil: soil, season: season, water: water,
+                previous_crop: previousCrop, location: location
+            })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.success === false) {
+            throw new Error(data.message || data.error || data.answer || "Flask /api/crop-recommendation returned an error.");
+        }
+        const crop = data.recommended_crop || data.crop || data.prediction || data.recommendedCrop;
+        if (!crop) {
+            throw new Error("The endpoint responded, but did not return a crop name. Check the JSON keys returned by Flask.");
+        }
+        title.textContent = "🌱 Recommended Crop: " + crop;
+        reason.textContent = data.reason || data.explanation || "Based on the soil type, season and water availability you selected.";
+        details.textContent = "Soil: " + soil + " | Season: " + season + " | Water: " + water + (previousCrop ? " | Previous crop: " + previousCrop : "") + (location ? " | Location: " + location : "");
+        speakAnswer((document.getElementById("assistantLanguage")?.value === "ta") ? ("பரிந்துரைக்கப்பட்ட பயிர்: " + crop + ". " + (data.reason || "")) : ("The recommended crop is " + crop + ". " + (data.reason || "")));
+    } catch (error) {
+        console.error("Mode 2 crop recommendation error:", error);
+        title.textContent = "⚠️ Recommendation Failed";
+        reason.textContent = error.message || "Could not get a crop recommendation.";
+        details.textContent = "Mode 2 needs a working Flask /api/crop-recommendation endpoint. If it says 'provide all seven input values', the backend route is using the Mode 1 validation and app.py must be corrected.";
+    } finally {
+        if (button) { button.disabled = false; button.textContent = "🌾 Get Recommendation"; }
+    }
+}
+
+function startCropVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) { alert("Voice recognition is not supported. Please use Google Chrome."); return; }
+
+    const recognition = new SpeechRecognition();
+    const selected = document.getElementById("cropVoiceLanguage").value;
+    recognition.lang = selected === "tanglish" ? "en-IN" : selected;
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        document.querySelector(".crop-voice button").textContent = "🔴 Listening...";
+    };
+
+    recognition.onresult = event => {
+        const rawText = event.results[0][0].transcript;
+        const text = rawText.toLowerCase();
+        fillCropFieldsFromVoice(text);
+        const mode2 = document.getElementById("farmerBasicForm").style.display !== "none";
+        if (mode2) {
+            const previous = document.getElementById("previousCrop");
+            const locationField = document.getElementById("cropLocation");
+            if (!previous.value && /rice|paddy|நெல்|நெற்பயிர்/i.test(rawText)) previous.value = /நெல்|நெற்பயிர்/.test(rawText) ? "rice" : "rice";
+            const placeMatch = rawText.match(/(?:in|at|location|ஊர்|இடம்)\s+([A-Za-z][A-Za-z ]{2,})/i);
+            if (placeMatch && !locationField.value) locationField.value = placeMatch[1].trim();
+        }
+        if (document.getElementById("cropResult")) {
+            document.getElementById("cropReason").textContent = "Heard: " + rawText + ". Please check the fields before submitting.";
+        }
+    };
+
+    recognition.onerror = event => alert("Voice input error: " + event.error);
+    recognition.onend = () => { document.querySelector(".crop-voice button").textContent = "🎤 Voice Input"; };
+    recognition.start();
+}
+
+function voiceNumber(text, names) {
+    for (const name of names) {
+        const m = text.match(new RegExp("(?:" + name + ")\\s*(?:is|=|:)?\\s*(-?\\d+(?:\\.\\d+)?)", "i"));
+        if (m) return m[1];
+    }
+    return "";
+}
+
+function fillCropFieldsFromVoice(text) {
+    const fields = {
+        cropN: voiceNumber(text,["nitrogen","\\bn\\b"]),
+        cropP: voiceNumber(text,["phosphorus","phosphorous","\\bp\\b"]),
+        cropK: voiceNumber(text,["potassium","\\bk\\b"]),
+        cropPH: voiceNumber(text,["soil p\\s*h","\\bph\\b"]),
+        cropTemperature: voiceNumber(text,["temperature","temp"]),
+        cropHumidity: voiceNumber(text,["humidity"]),
+        cropRainfall: voiceNumber(text,["rainfall","rain fall"])
+    };
+    Object.keys(fields).forEach(id => { if (fields[id]) document.getElementById(id).value = fields[id]; });
+
+    if (text.includes("clay") || text.includes("களிமண்")) document.getElementById("cropSoil").value="clay";
+    else if (text.includes("sandy") || text.includes("sand") || text.includes("மணல் மண்")) document.getElementById("cropSoil").value="sandy";
+    else if (text.includes("loamy") || text.includes("loam") || text.includes("வண்டல்")) document.getElementById("cropSoil").value="loamy";
+    else if (text.includes("black soil") || text.includes("கரிசல்")) document.getElementById("cropSoil").value="black";
+    else if (text.includes("red soil") || text.includes("செம்மண்")) document.getElementById("cropSoil").value="red";
+
+    if (text.includes("kharif") || text.includes("monsoon") || text.includes("மழைக்காலம்")) document.getElementById("cropSeason").value="kharif";
+    else if (text.includes("rabi") || text.includes("winter") || text.includes("குளிர்காலம்")) document.getElementById("cropSeason").value="rabi";
+    else if (text.includes("summer") || text.includes("கோடை")) document.getElementById("cropSeason").value="summer";
+
+    if (text.includes("high water") || text.includes("more water") || text.includes("நிறைய தண்ணீர்") || text.includes("தண்ணீர் அதிகம்")) document.getElementById("cropWater").value="high";
+    else if (text.includes("low water") || text.includes("less water") || text.includes("தண்ணீர் குறைவு")) document.getElementById("cropWater").value="low";
+    else if (text.includes("medium water") || text.includes("moderate water") || text.includes("மிதமான தண்ணீர்")) document.getElementById("cropWater").value="medium";
+}
+
+/* =====================================================
+   RICE LEAF DISEASE DETECTION (ADDED)
+===================================================== */
+const riceLeafImageInput = document.getElementById("riceLeafImage");
+if (riceLeafImageInput) {
+    riceLeafImageInput.addEventListener("change", function () {
+        const file = this.files && this.files[0];
+        const preview = document.getElementById("riceImagePreview");
+        const result = document.getElementById("diseaseResult");
+        if (result) result.style.display = "none";
+        if (!file) {
+            preview.removeAttribute("src");
+            preview.style.display = "none";
+            return;
+        }
+        if (!file.type.startsWith("image/")) {
+            alert("Please choose a valid image file.");
+            this.value = "";
+            preview.style.display = "none";
+            return;
+        }
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    });
+}
+
+async function detectRiceDisease() {
+    const fileInput = document.getElementById("riceLeafImage");
+    const button = document.getElementById("detectDiseaseBtn");
+    const result = document.getElementById("diseaseResult");
+    const name = document.getElementById("diseaseName");
+    const confidence = document.getElementById("diseaseConfidence");
+    const message = document.getElementById("diseaseMessage");
+    const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+    if (!file) {
+        alert("Please choose a rice leaf photo first.");
+        return;
+    }
+    if (!/^image\/(jpeg|png)$/i.test(file.type) && !/\.(jpe?g|png)$/i.test(file.name)) {
+        alert("Please upload a JPG or PNG image.");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "⏳ Analysing rice leaf...";
+    result.style.display = "block";
+    name.textContent = "Checking the image...";
+    confidence.textContent = "Please wait while the AI model analyses the photo.";
+    message.textContent = "This is an experimental prediction, not a confirmed diagnosis.";
+
+    try {
+        const formData = new FormData();
+        formData.append("image", file);
+        const response = await fetch("http://127.0.0.1:5001/api/detect-rice-disease", {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.success === false) {
+            throw new Error(data.message || data.error || "Disease detection failed.");
+        }
+
+        const predictedDisease = data.predicted_disease || data.predicted_class || data.disease || data.prediction;
+        if (!predictedDisease) throw new Error("The backend did not return a disease name.");
+        name.textContent = "🍃 Predicted disease: " + predictedDisease;
+        confidence.textContent = "Model confidence: " + (Number.isFinite(Number(data.confidence)) ? Number(data.confidence).toFixed(2) + "%" : "Not provided");
+        message.textContent = (data.message || "Experimental prediction only. Please verify with an agricultural expert.") + " Supported classes: Bacterial leaf blight, Brown spot and Leaf smut.";
+    } catch (error) {
+        name.textContent = "⚠️ Detection failed";
+        confidence.textContent = error.message || "Could not connect to the disease detection API.";
+        message.textContent = "Check that the Flask backend is running at http://127.0.0.1:5001 and the rice disease model is loaded.";
+    } finally {
+        button.disabled = false;
+        button.textContent = "🔍 Detect Disease";
+    }
+}
+
+function showDiseaseDetection() {
+    const chatAreaElement = document.getElementById("chatArea");
+    const inputSection = document.querySelector(".input-section");
+    const cropPanel = document.getElementById("cropPanel");
+    const diseasePanel = document.getElementById("diseasePanel");
+    const assistantMenu = document.getElementById("assistantMenu");
+    const cropMenu = document.getElementById("cropMenu");
+    const diseaseMenu = document.getElementById("diseaseMenu");
+
+    if (chatAreaElement) chatAreaElement.style.display = "none";
+    if (inputSection) inputSection.style.display = "none";
+    if (cropPanel) cropPanel.style.display = "none";
+    if (diseasePanel) diseasePanel.style.display = "block";
+    if (assistantMenu) assistantMenu.classList.remove("active");
+    if (cropMenu) cropMenu.classList.remove("active");
+    if (diseaseMenu) diseaseMenu.classList.add("active");
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    if (typeof stopHologramSpeaking === "function") stopHologramSpeaking();
+    if (typeof hideHologram === "function") hideHologram();
+    const topbar = document.querySelector(".topbar");
+    if (topbar && topbar.firstChild) topbar.firstChild.textContent = "Rice Leaf Disease Detection";
+}
+
+/* =====================================================
+   PAGE LOAD
+===================================================== */
+
+window.addEventListener(
+    "load",
+    function() {
+
+        input.focus();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
