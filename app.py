@@ -1,6 +1,8 @@
 
 
 import os
+import sys
+import shutil
 
 import math
 
@@ -21,6 +23,12 @@ from crop_recommendation import recommend_crop
 import joblib
 
 from deep_translator import GoogleTranslator
+
+# Added for rice leaf disease detection only
+import json
+import numpy as np
+import tensorflow as tf
+from PIL import Image, UnidentifiedImageError
 
 
 
@@ -57,6 +65,50 @@ MODEL_PATH = os.path.join(BASE_DIR, "crop_model.pkl")
 
 
 crop_model = joblib.load(MODEL_PATH)
+
+
+# ---------------------------------------
+# RICE LEAF DISEASE MODEL (ADDED)
+# ---------------------------------------
+
+DISEASE_DIR = os.path.join(BASE_DIR, "disease_detection")
+DISEASE_DATASET_DIR = os.path.join(
+    DISEASE_DIR, "dataset", "rice_leaf_diseases"
+)
+
+# Keep the original trained model as a safe fallback.
+ORIGINAL_DISEASE_MODEL_PATH = os.path.join(
+    DISEASE_DIR, "rice_disease_model.keras"
+)
+ORIGINAL_DISEASE_CLASS_PATH = os.path.join(
+    DISEASE_DIR, "rice_disease_classes.json"
+)
+
+# The training mode creates these files. If they exist, the app uses the
+# improved candidate; otherwise it continues using the original model.
+IMPROVED_DISEASE_MODEL_PATH = os.path.join(
+    DISEASE_DIR, "rice_disease_model_improved.keras"
+)
+IMPROVED_DISEASE_CLASS_PATH = os.path.join(
+    DISEASE_DIR, "rice_disease_classes_improved.json"
+)
+
+if (
+    os.path.isfile(IMPROVED_DISEASE_MODEL_PATH)
+    and os.path.isfile(IMPROVED_DISEASE_CLASS_PATH)
+):
+    DISEASE_MODEL_PATH = IMPROVED_DISEASE_MODEL_PATH
+    DISEASE_CLASS_PATH = IMPROVED_DISEASE_CLASS_PATH
+    print("Loading improved rice disease model...")
+else:
+    DISEASE_MODEL_PATH = ORIGINAL_DISEASE_MODEL_PATH
+    DISEASE_CLASS_PATH = ORIGINAL_DISEASE_CLASS_PATH
+    print("Loading original rice disease model...")
+
+disease_model = tf.keras.models.load_model(DISEASE_MODEL_PATH)
+
+with open(DISEASE_CLASS_PATH, "r", encoding="utf-8") as file:
+    disease_class_names = json.load(file)
 
 
 
@@ -994,6 +1046,234 @@ def crop_recommendation_module():
 
 # ---------------------------------------
 
+# RICE LEAF DISEASE DETECTION (ADDED)
+# POST /api/detect-rice-disease
+# Multipart image field: image
+
+# ---------------------------------------
+
+@app.route("/api/detect-rice-disease", methods=["POST"])
+def detect_rice_disease():
+    try:
+        if "image" not in request.files:
+            return jsonify({
+                "success": False,
+                "message": "Please upload an image using the 'image' field."
+            }), 400
+
+        uploaded_file = request.files["image"]
+
+        if not uploaded_file.filename:
+            return jsonify({
+                "success": False,
+                "message": "Please select an image file."
+            }), 400
+
+        try:
+            image = Image.open(uploaded_file.stream).convert("RGB")
+            image = image.resize((128, 128))
+        except (UnidentifiedImageError, OSError, ValueError):
+            return jsonify({
+                "success": False,
+                "message": "Invalid image. Please upload a valid JPG or PNG image."
+            }), 400
+
+        image_array = np.asarray(image, dtype=np.float32)
+        image_array = np.expand_dims(image_array, axis=0)
+
+        predictions = disease_model.predict(image_array, verbose=0)[0]
+        best_index = int(np.argmax(predictions))
+        predicted_disease = disease_class_names[best_index]
+        confidence = float(predictions[best_index]) * 100
+
+        return jsonify({
+            "success": True,
+            "predicted_disease": predicted_disease,
+            "confidence": round(confidence, 2),
+            "classes": disease_class_names,
+            "message": (
+                "Experimental prediction only. "
+                "Please verify the result with an agricultural expert."
+            )
+        }), 200
+
+    except Exception as e:
+        app.logger.exception("Error in rice disease detection")
+        return jsonify({
+            "success": False,
+            "message": "Unable to detect rice leaf disease.",
+            "error": str(e)
+        }), 500
+
+
+# ---------------------------------------
+# OPTIONAL RICE DISEASE MODEL TRAINING
+# Run: python app.py --train-rice-model
+# This mode does not start Flask or alter other routes.
+# ---------------------------------------
+
+def train_rice_disease_model():
+    """Train a transfer-learning candidate and keep the better validation model."""
+    if not os.path.isdir(DISEASE_DATASET_DIR):
+        raise FileNotFoundError(
+            "Rice disease dataset folder not found: " + DISEASE_DATASET_DIR
+        )
+
+    image_size = (128, 128)
+    batch_size = 8
+    seed = 42
+    initial_epochs = 20
+    fine_tune_epochs = 10
+
+    tf.keras.utils.set_random_seed(seed)
+
+    print("Loading rice leaf dataset...")
+    train_ds = tf.keras.utils.image_dataset_from_directory(
+        DISEASE_DATASET_DIR,
+        validation_split=0.20,
+        subset="training",
+        seed=seed,
+        image_size=image_size,
+        batch_size=batch_size,
+        label_mode="int"
+    )
+    val_ds = tf.keras.utils.image_dataset_from_directory(
+        DISEASE_DATASET_DIR,
+        validation_split=0.20,
+        subset="validation",
+        seed=seed,
+        image_size=image_size,
+        batch_size=batch_size,
+        label_mode="int"
+    )
+
+    class_names = train_ds.class_names
+    if len(class_names) < 2:
+        raise ValueError("At least two disease classes are required.")
+
+    # Use deterministic class order from the dataset loader for this model.
+    autotune = tf.data.AUTOTUNE
+    train_ds = train_ds.prefetch(autotune)
+    val_ds = val_ds.prefetch(autotune)
+
+    augmentation = tf.keras.Sequential([
+        tf.keras.layers.RandomFlip("horizontal"),
+        tf.keras.layers.RandomRotation(0.08),
+        tf.keras.layers.RandomZoom(0.10),
+    ], name="rice_leaf_augmentation")
+
+    print("Loading pretrained MobileNetV2 (internet may be needed once)...")
+    base_model = tf.keras.applications.MobileNetV2(
+        input_shape=(128, 128, 3),
+        include_top=False,
+        weights="imagenet"
+    )
+    base_model.trainable = False
+
+    inputs = tf.keras.Input(shape=(128, 128, 3))
+    x = augmentation(inputs)
+    x = tf.keras.layers.Rescaling(1.0 / 127.5, offset=-1)(x)
+    x = base_model(x, training=False)
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = tf.keras.layers.Dropout(0.30)(x)
+    outputs = tf.keras.layers.Dense(
+        len(class_names), activation="softmax"
+    )(x)
+    model = tf.keras.Model(inputs, outputs)
+
+    phase1_path = os.path.join(DISEASE_DIR, "rice_disease_phase1_best.keras")
+    phase2_path = os.path.join(DISEASE_DIR, "rice_disease_phase2_best.keras")
+
+    def make_callbacks(checkpoint_path):
+        return [
+            tf.keras.callbacks.ModelCheckpoint(
+                checkpoint_path,
+                monitor="val_accuracy",
+                mode="max",
+                save_best_only=True,
+                verbose=1
+            ),
+            tf.keras.callbacks.EarlyStopping(
+                monitor="val_loss",
+                patience=5,
+                restore_best_weights=True,
+                verbose=1
+            ),
+            tf.keras.callbacks.ReduceLROnPlateau(
+                monitor="val_loss",
+                factor=0.3,
+                patience=2,
+                min_lr=1e-7,
+                verbose=1
+            )
+        ]
+
+    print("\nPhase 1/2: training the new classification head...")
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+    model.fit(
+        train_ds,
+        validation_data=val_ds,
+        epochs=initial_epochs,
+        callbacks=make_callbacks(phase1_path)
+    )
+
+    if not os.path.isfile(phase1_path):
+        raise RuntimeError("Phase 1 did not save a model checkpoint.")
+
+    print("\nPhase 2/2: fine-tuning the final MobileNetV2 layers...")
+    base_model.trainable = True
+    for layer in base_model.layers[:-20]:
+        layer.trainable = False
+    for layer in base_model.layers:
+        if isinstance(layer, tf.keras.layers.BatchNormalization):
+            layer.trainable = False
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+    model.fit(
+        train_ds,
+        validation_data=val_ds,
+        epochs=fine_tune_epochs,
+        callbacks=make_callbacks(phase2_path)
+    )
+
+    # Compare both candidates on the same validation split; keep the higher score.
+    phase1_model = tf.keras.models.load_model(phase1_path)
+    _, phase1_accuracy = phase1_model.evaluate(val_ds, verbose=0)
+    selected_path = phase1_path
+    selected_accuracy = float(phase1_accuracy)
+
+    if os.path.isfile(phase2_path):
+        phase2_model = tf.keras.models.load_model(phase2_path)
+        _, phase2_accuracy = phase2_model.evaluate(val_ds, verbose=0)
+        if float(phase2_accuracy) > selected_accuracy:
+            selected_path = phase2_path
+            selected_accuracy = float(phase2_accuracy)
+
+    # Save as a separate candidate; never overwrite the original production model.
+    shutil.copy2(selected_path, IMPROVED_DISEASE_MODEL_PATH)
+    with open(IMPROVED_DISEASE_CLASS_PATH, "w", encoding="utf-8") as file:
+        json.dump(class_names, file, indent=4, ensure_ascii=False)
+
+    print("\n----------------------------------------")
+    print("RICE DISEASE TRAINING FINISHED")
+    print("Best validation accuracy: {:.2f}%".format(selected_accuracy * 100))
+    print("Candidate model:", IMPROVED_DISEASE_MODEL_PATH)
+    print("Class names:", IMPROVED_DISEASE_CLASS_PATH)
+    print("Original model was not overwritten.")
+    print("Restart the app to use the candidate model, then test it before relying on it.")
+    print("----------------------------------------")
+
+
+# ---------------------------------------
+
 # RUN FLASK SERVER
 
 # ---------------------------------------
@@ -1002,14 +1282,13 @@ def crop_recommendation_module():
 
 if __name__ == "__main__":
 
-    app.run(
-
-        host="127.0.0.1",
-
-        port=5001,
-
-        debug=True
-
-    )
+    if "--train-rice-model" in sys.argv:
+        train_rice_disease_model()
+    else:
+        app.run(
+            host="127.0.0.1",
+            port=5001,
+            debug=True
+        )
 
 

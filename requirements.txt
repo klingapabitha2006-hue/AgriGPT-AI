@@ -4,3 +4,5 @@ gunicorn
 joblib
 deep-translator
 scikit-learn
+Pillow
+tensorflow
