@@ -605,9 +605,9 @@ textarea::placeholder {
 
 #cropPanel {
     display: none;
-    max-width: 900px;
-    margin: 20px auto 40px;
-    padding: 24px;
+    max-width: 760px;
+    margin: 16px auto 28px;
+    padding: 18px;
     background: #181818;
     border: 1px solid #343434;
     border-radius: 16px;
@@ -622,15 +622,15 @@ textarea::placeholder {
 .crop-voice { display:flex; gap:10px; margin-bottom:18px; }
 .crop-voice select { flex:1; padding:12px; border-radius:9px; background:#242424; color:#fff; border:1px solid #444; }
 .crop-voice button { padding:12px 18px; border-radius:9px; background:#20352f; color:#20c997; border:1px solid #20c997; cursor:pointer; }
-.crop-form { padding:20px; background:#212121; border:1px solid #363636; border-radius:13px; }
+.crop-form { padding:15px; background:#212121; border:1px solid #363636; border-radius:13px; }
 .crop-form h3 { margin-bottom:7px; }
 .crop-subtitle { color:#999; font-size:13px; margin-bottom:18px; }
-.crop-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+.crop-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 .crop-field { display:flex; flex-direction:column; gap:7px; }
 .crop-field label { font-size:13px; color:#ccc; }
-.crop-field input, .crop-field select { width:100%; padding:12px; border-radius:8px; border:1px solid #444; background:#171717; color:#fff; outline:none; }
+.crop-field input, .crop-field select { width:100%; padding:9px; border-radius:8px; border:1px solid #444; background:#171717; color:#fff; outline:none; }
 .crop-field input:focus, .crop-field select:focus { border-color:#20c997; }
-.crop-submit-btn { width:100%; margin-top:20px; padding:14px; border:0; border-radius:9px; background:#20c997; color:#111; font-weight:bold; font-size:15px; cursor:pointer; }
+.crop-submit-btn { width:100%; margin-top:14px; padding:11px; border:0; border-radius:9px; background:#20c997; color:#111; font-weight:bold; font-size:15px; cursor:pointer; }
 .crop-submit-btn:hover { background:#27dfaa; }
 .crop-submit-btn:disabled { background:#555; color:#bbb; cursor:not-allowed; }
 .crop-result { margin-top:18px; padding:18px; border-radius:11px; background:#171717; border:1px solid #333; }
@@ -714,11 +714,106 @@ textarea::placeholder {
 
 }
 
+
+@page { size: A4 portrait; margin: 12mm; }
+@media print {
+  html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111111 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body.printing-crop-result * { visibility: hidden !important; }
+  body.printing-crop-result #cropPanel,
+  body.printing-crop-result #cropResult,
+  body.printing-crop-result #cropResult * { visibility: visible !important; }
+  body.printing-crop-result #cropPanel {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  body.printing-crop-result #cropPanel > :not(#cropResult) { display: none !important; }
+  body.printing-crop-result #cropResult {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 14px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #168a69 !important;
+    border-radius: 8px !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  body.printing-crop-result #cropResult * { color: #111111 !important; }
+  body.printing-crop-result #recommendedCrop { font-size: 15pt !important; color: #168a69 !important; font-weight: bold !important; }
+  body.printing-crop-result #cropReason,
+  body.printing-crop-result #cropDetails { margin-top: 6px !important; overflow-wrap: anywhere !important; }
+}
+
+/* ================= WEATHER PREDICTION MODULE ================= */
+#weatherPanel{display:none;max-width:900px;width:calc(100% - 36px);margin:22px auto 35px;color:#f5f5f5}
+.weather-card{background:#181818;border:1px solid #333;border-radius:16px;padding:22px;box-shadow:0 8px 25px rgba(0,0,0,.18)}
+.weather-heading h2{margin:0 0 8px;color:#20c997;font-size:23px}
+.weather-heading p{margin:0 0 18px;color:#aaa;line-height:1.5}
+.weather-search{display:flex;gap:10px;margin-bottom:12px}
+.weather-search input{flex:1;min-width:0;background:#242424;color:#fff;border:1px solid #444;border-radius:9px;padding:13px;font-size:15px}
+.weather-search button{border:0;border-radius:9px;padding:12px 17px;background:#20c997;color:#101010;font-weight:700;cursor:pointer}
+.weather-status{color:#aaa;font-size:13px;margin:10px 0}
+.weather-current{margin-top:16px;padding:18px;border-radius:12px;background:#202522;border:1px solid #285b49}
+.weather-current-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.weather-place{font-size:20px;font-weight:700}
+.weather-temp{font-size:35px;font-weight:800;color:#20c997}
+.weather-description{color:#ddd;margin-top:5px}
+.weather-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.weather-metric{background:#292929;border-radius:9px;padding:12px}
+.weather-metric span{display:block;color:#aaa;font-size:12px;margin-bottom:6px}
+.weather-metric strong{font-size:16px}
+.weather-forecast{margin-top:18px}
+.weather-forecast h3{margin:0 0 12px;font-size:17px}
+.weather-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.weather-day{background:#242424;border:1px solid #383838;border-radius:10px;padding:12px 8px;text-align:center}
+.weather-day .day-name{font-weight:700;margin-bottom:8px}
+.weather-day .day-icon{font-size:22px;margin-bottom:5px}
+.weather-day .day-temp{color:#20c997;font-weight:700}
+.weather-day small{display:block;color:#aaa;margin-top:7px;font-size:11px}
+@media(max-width:700px){#weatherPanel{width:calc(100% - 20px);margin:12px auto}.weather-card{padding:14px}.weather-search{flex-direction:column}.weather-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.weather-days{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 
 </head>
 
 <body>
+
+<!-- ================= START SCREEN (ADDED) ================= -->
+<div id="agriStartScreen" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top,#18382d,#101010 65%);padding:20px;text-align:center;">
+  <div style="max-width:520px;padding:36px 28px;border:1px solid #20c997;border-radius:20px;background:#181818;box-shadow:0 0 35px rgba(32,201,151,.18);">
+    <div style="font-size:48px;margin-bottom:12px;">🌱</div>
+    <h1 style="color:#20c997;margin-bottom:12px;">Welcome to AgriGPT AI</h1>
+    <p style="color:#ddd;line-height:1.6;margin-bottom:24px;">Your smart farming assistant. Get crop recommendations and agriculture guidance.</p>
+    <button type="button" onclick="startAgriGPT()" style="padding:13px 34px;border:0;border-radius:10px;background:#20c997;color:#101010;font-weight:bold;font-size:16px;cursor:pointer;">▶ Start</button>
+  </div>
+</div>
 
 <!-- ================= SIDEBAR ================= -->
 
@@ -749,8 +844,8 @@ textarea::placeholder {
      Disease Detection
 </div>
 
-<div class="menu-item coming">
-     Weather Prediction
+<div class="menu-item" id="weatherMenu" onclick="showWeatherPrediction()">
+     🌦️ Weather Prediction
 </div>
 
 <div class="menu-item coming">
@@ -862,12 +957,12 @@ textarea::placeholder {
 
     <div class="crop-header">
         <h2>🌱 Crop Recommendation</h2>
-        <p>Enter soil and weather details to get a crop recommendation.</p>
+        <p>Choose a mode and enter the required details to get a crop recommendation.</p>
     </div>
 
     <div class="crop-modes">
-        <button id="mode1Btn" class="crop-mode-btn active" onclick="selectCropMode(1)">🧪 Mode 1 - Soil Test</button>
-        <button id="mode2Btn" class="crop-mode-btn" onclick="selectCropMode(2)">👨‍🌾 Mode 2 - Farmer Basic</button>
+        <button id="mode1Btn" class="crop-mode-btn active" onclick="selectCropMode(1)">🌱 Mode 1 - Smart Crop Recommendation</button>
+        <button id="mode2Btn" class="crop-mode-btn" onclick="selectCropMode(2)">👨‍🌾 Mode 2 - Farmer-Friendly Recommendation</button>
     </div>
 
     <div class="crop-voice">
@@ -880,7 +975,7 @@ textarea::placeholder {
     </div>
 
     <div id="soilTestForm" class="crop-form">
-        <h3>🧪 Soil Test Based Recommendation</h3>
+        <h3>🌱 Smart Crop Recommendation</h3>
         <p class="crop-subtitle">Enter all 7 values used by the trained Random Forest model.</p>
 
         <div class="crop-grid">
@@ -936,6 +1031,24 @@ textarea::placeholder {
             <div id="diseaseMessage">Select a photo and click Detect Disease.</div>
         </div>
     </div>
+</div>
+
+
+<!-- ================= WEATHER PREDICTION MODULE ================= -->
+<div id="weatherPanel">
+  <div class="weather-card">
+    <div class="weather-heading">
+      <h2>🌦️ Weather Prediction</h2>
+      <p>Enter your village or city name to view current weather and a 5-day forecast.</p>
+    </div>
+    <form id="weatherForm" class="weather-search" onsubmit="getWeatherPrediction(event)">
+      <input id="weatherLocation" type="text" placeholder="Enter city or village (e.g. Tiruchendur)" required>
+      <button type="submit" id="weatherSearchBtn">🌤️ Get Weather</button>
+    </form>
+    <p id="weatherStatus" class="weather-status" role="status">Search for a location to see its weather.</p>
+    <div id="weatherCurrent" class="weather-current" style="display:none"></div>
+    <div id="weatherForecast" class="weather-forecast" style="display:none"></div>
+  </div>
 </div>
 
 <!-- ================= HOLOGRAM ================= -->
@@ -1021,6 +1134,11 @@ textarea::placeholder {
 </div>
 
 <script>
+function startAgriGPT() {
+    const screen = document.getElementById("agriStartScreen");
+    if (screen) screen.style.display = "none";
+}
+
 
 /* =====================================================
    ELEMENTS
@@ -2542,6 +2660,11 @@ function startVoice() {
 ===================================================== */
 
 function newChat() {
+    const weatherPanel = document.getElementById("weatherPanel");
+    const weatherMenu = document.getElementById("weatherMenu");
+    if (weatherPanel) weatherPanel.style.display = "none";
+    if (weatherMenu) weatherMenu.classList.remove("active");
+
 
     const cropPanel = document.getElementById("cropPanel");
     if (cropPanel) cropPanel.style.display = "none";
@@ -2660,6 +2783,11 @@ function newChat() {
 ===================================================== */
 
 function showCropRecommendation() {
+    const weatherPanel = document.getElementById("weatherPanel");
+    const weatherMenu = document.getElementById("weatherMenu");
+    if (weatherPanel) weatherPanel.style.display = "none";
+    if (weatherMenu) weatherMenu.classList.remove("active");
+
     const chatArea = document.getElementById("chatArea");
     const inputSection = document.querySelector(".input-section");
     const cropPanel = document.getElementById("cropPanel");
@@ -2685,6 +2813,11 @@ function showCropRecommendation() {
 }
 
 function showAssistant() {
+    const weatherPanel = document.getElementById("weatherPanel");
+    const weatherMenu = document.getElementById("weatherMenu");
+    if (weatherPanel) weatherPanel.style.display = "none";
+    if (weatherMenu) weatherMenu.classList.remove("active");
+
     const chatArea = document.getElementById("chatArea");
     const inputSection = document.querySelector(".input-section");
     const cropPanel = document.getElementById("cropPanel");
@@ -2712,6 +2845,23 @@ function selectCropMode(mode) {
     document.getElementById("farmerBasicForm").style.display = mode === 2 ? "block" : "none";
 }
 
+function printCropRecommendation() {
+    const resultBox = document.getElementById("cropResult");
+    const crop = document.getElementById("recommendedCrop")?.textContent || "";
+    if (!crop || /failed|unable|predicting|checking/i.test(crop)) return;
+    // Print the current page in-place; do not open a second tab/window.
+    document.body.classList.add("printing-crop-result");
+    window.print();
+    // Keep the normal interface after the print dialog closes.
+    window.addEventListener("afterprint", () => document.body.classList.remove("printing-crop-result"), { once: true });
+    // Fallback cleanup for browsers that do not fire afterprint reliably.
+    setTimeout(() => document.body.classList.remove("printing-crop-result"), 1500);
+}
+
+function escapePrintText(value) {
+    return String(value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+
 async function analyzeSoilTest() {
     const N = parseFloat(document.getElementById("cropN").value);
     const P = parseFloat(document.getElementById("cropP").value);
@@ -2732,6 +2882,8 @@ async function analyzeSoilTest() {
     const button = document.getElementById("soilSubmitBtn");
     button.disabled = true;
     button.textContent = "⏳ Predicting Crop...";
+    document.getElementById("cropResult").style.display = "block";
+    document.getElementById("cropResult").scrollIntoView({ behavior: "smooth", block: "nearest" });
     document.getElementById("recommendedCrop").textContent = "🌱 Recommended Crop: Predicting...";
     document.getElementById("cropReason").textContent = "Random Forest model is analysing the values...";
 
@@ -2748,10 +2900,13 @@ async function analyzeSoilTest() {
         const crop = data.recommended_crop || data.crop || data.prediction;
         if (!crop) throw new Error("No crop prediction received from backend.");
 
+        document.getElementById("cropResult").style.display = "block";
         document.getElementById("recommendedCrop").textContent = "🌱 Recommended Crop: " + crop;
         document.getElementById("cropReason").textContent = data.reason || "Recommendation generated using the trained Random Forest model.";
         document.getElementById("cropDetails").textContent = `N: ${N} | P: ${P} | K: ${K} | Temperature: ${temperature}°C | Humidity: ${humidity}% | pH: ${ph} | Rainfall: ${rainfall} mm`;
+        document.getElementById("cropResult").scrollIntoView({ behavior: "smooth", block: "nearest" });
         speakAnswer("The recommended crop is " + crop);
+        setTimeout(printCropRecommendation, 700);
 
     } catch (error) {
         console.error(error);
@@ -2808,6 +2963,7 @@ async function getCropRecommendation() {
         reason.textContent = data.reason || data.explanation || "Based on the soil type, season and water availability you selected.";
         details.textContent = "Soil: " + soil + " | Season: " + season + " | Water: " + water + (previousCrop ? " | Previous crop: " + previousCrop : "") + (location ? " | Location: " + location : "");
         speakAnswer((document.getElementById("assistantLanguage")?.value === "ta") ? ("பரிந்துரைக்கப்பட்ட பயிர்: " + crop + ". " + (data.reason || "")) : ("The recommended crop is " + crop + ". " + (data.reason || "")));
+        setTimeout(printCropRecommendation, 700);
     } catch (error) {
         console.error("Mode 2 crop recommendation error:", error);
         title.textContent = "⚠️ Recommendation Failed";
@@ -2968,6 +3124,11 @@ async function detectRiceDisease() {
 }
 
 function showDiseaseDetection() {
+    const weatherPanel = document.getElementById("weatherPanel");
+    const weatherMenu = document.getElementById("weatherMenu");
+    if (weatherPanel) weatherPanel.style.display = "none";
+    if (weatherMenu) weatherMenu.classList.remove("active");
+
     const chatAreaElement = document.getElementById("chatArea");
     const inputSection = document.querySelector(".input-section");
     const cropPanel = document.getElementById("cropPanel");
@@ -2989,6 +3150,95 @@ function showDiseaseDetection() {
     const topbar = document.querySelector(".topbar");
     if (topbar && topbar.firstChild) topbar.firstChild.textContent = "Rice Leaf Disease Detection";
 }
+
+
+/* ================= WEATHER PREDICTION FUNCTIONS ================= */
+function showWeatherPrediction() {
+    const ids = ["chatArea","cropPanel","diseasePanel"];
+    ids.forEach(id => { const el=document.getElementById(id); if(el) el.style.display="none"; });
+    const inputSection=document.querySelector(".input-section");
+    if(inputSection) inputSection.style.display="none";
+    ["assistantMenu","cropMenu","diseaseMenu"].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove("active");});
+    const menu=document.getElementById("weatherMenu");
+    if(menu) menu.classList.add("active");
+    const panel=document.getElementById("weatherPanel");
+    if(panel) panel.style.display="block";
+    if("speechSynthesis" in window) speechSynthesis.cancel();
+    if(typeof stopHologramSpeaking==="function") stopHologramSpeaking();
+    if(typeof hideHologram==="function") hideHologram();
+    const topbar=document.querySelector(".topbar");
+    if(topbar && topbar.firstChild) topbar.firstChild.textContent="Weather Prediction";
+}
+function weatherCodeDescription(code) {
+    if(code===0) return ["Clear sky","☀️"];
+    if([1,2].includes(code)) return ["Partly cloudy","🌤️"];
+    if(code===3) return ["Overcast","☁️"];
+    if([45,48].includes(code)) return ["Foggy","🌫️"];
+    if([51,53,55,56,57].includes(code)) return ["Drizzle","🌦️"];
+    if([61,63,65,66,67,80,81,82].includes(code)) return ["Rain","🌧️"];
+    if([71,73,75,77,85,86].includes(code)) return ["Snow","❄️"];
+    if([95,96,99].includes(code)) return ["Thunderstorm","⛈️"];
+    return ["Weather conditions","🌡️"];
+}
+async function getWeatherPrediction(event) {
+    if(event) event.preventDefault();
+    const input=document.getElementById("weatherLocation");
+    const status=document.getElementById("weatherStatus");
+    const button=document.getElementById("weatherSearchBtn");
+    const current=document.getElementById("weatherCurrent");
+    const forecast=document.getElementById("weatherForecast");
+    const location=(input.value||"").trim();
+    if(!location) return;
+    status.textContent="⏳ Getting weather details...";
+    button.disabled=true;
+    current.style.display="none"; forecast.style.display="none";
+    try {
+        const geoResponse=await fetch("https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(location)+"&count=1&language=en&format=json");
+        if(!geoResponse.ok) throw new Error("Location service is unavailable.");
+        const geo=await geoResponse.json();
+        if(!geo.results || !geo.results.length) throw new Error("Location not found. Please enter a valid city or village name.");
+        const place=geo.results[0];
+        const url="https://api.open-meteo.com/v1/forecast?latitude="+place.latitude+"&longitude="+place.longitude+"&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=auto&forecast_days=5";
+        const weatherResponse=await fetch(url);
+        if(!weatherResponse.ok) throw new Error("Weather service is unavailable. Please try again.");
+        const data=await weatherResponse.json();
+        const c=data.current, d=data.daily, desc=weatherCodeDescription(c.weather_code);
+        const placeName=[place.name,place.admin1,place.country].filter(Boolean).join(", ");
+        current.innerHTML='<div class="weather-current-top"><div><div class="weather-place">📍 '+placeName.replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))+'</div><div class="weather-description">'+desc[1]+' '+desc[0]+'</div></div><div class="weather-temp">'+Math.round(c.temperature_2m)+'°C</div></div><div class="weather-metrics"><div class="weather-metric"><span>Feels Like</span><strong>'+Math.round(c.apparent_temperature)+'°C</strong></div><div class="weather-metric"><span>Humidity</span><strong>'+c.relative_humidity_2m+'%</strong></div><div class="weather-metric"><span>Rain</span><strong>'+Number(c.precipitation||0)+' mm</strong></div><div class="weather-metric"><span>Wind Speed</span><strong>'+Math.round(c.wind_speed_10m)+' km/h</strong></div></div>';
+        current.style.display="block";
+        let days='<h3>📅 5-Day Forecast</h3><div class="weather-days">';
+        for(let i=0;i<d.time.length;i++){
+            const dd=weatherCodeDescription(d.weather_code[i]);
+            const date=new Date(d.time[i]+"T12:00:00");
+            const day=date.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
+            days+='<div class="weather-day"><div class="day-name">'+day+'</div><div class="day-icon">'+dd[1]+'</div><div>'+dd[0]+'</div><div class="day-temp">'+Math.round(d.temperature_2m_max[i])+'° / '+Math.round(d.temperature_2m_min[i])+'°</div><small>Rain chance: '+(d.precipitation_probability_max[i]??0)+'%</small><small>Rain: '+Number(d.precipitation_sum[i]||0).toFixed(1)+' mm</small></div>';
+        }
+        forecast.innerHTML=days+'</div>'; forecast.style.display="block";
+        status.textContent="✅ Weather updated. Source: Open-Meteo.";
+        const languageSelect = document.getElementById("assistantLanguage");
+        const isTamil = languageSelect && languageSelect.value === "ta";
+        const forecastSpeech = d.time.slice(0, 5).map((dateText, i) => {
+            const dayName = new Date(dateText + "T12:00:00").toLocaleDateString("en-IN", { weekday: "long" });
+            const dayWeather = weatherCodeDescription(d.weather_code[i])[0];
+            return dayName + ": " + dayWeather + ", high " + Math.round(d.temperature_2m_max[i]) + " degrees, low " + Math.round(d.temperature_2m_min[i]) + " degrees, rain chance " + (d.precipitation_probability_max[i] ?? 0) + " percent.";
+        }).join(" ");
+        const spoken = isTamil
+            ? placeName + " ஊரின் தற்போதைய வானிலை. வெப்பநிலை " + Math.round(c.temperature_2m) + " டிகிரி செல்சியஸ். " + desc[0] + ". ஈரப்பதம் " + c.relative_humidity_2m + " சதவீதம். மழை அளவு " + Number(c.precipitation || 0) + " மில்லிமீட்டர். காற்றின் வேகம் மணிக்கு " + Math.round(c.wind_speed_10m) + " கிலோமீட்டர். அடுத்த ஐந்து நாட்களின் முன்னறிவிப்பை திரையில் பார்க்கலாம்."
+            : "Weather for " + placeName + ". Current temperature " + Math.round(c.temperature_2m) + " degrees Celsius. " + desc[0] + ". Humidity " + c.relative_humidity_2m + " percent. Rain " + Number(c.precipitation || 0) + " millimeters. Wind speed " + Math.round(c.wind_speed_10m) + " kilometers per hour. Five day forecast: " + forecastSpeech;
+        // Ensure the hologram is visible and animates while the weather report is spoken.
+        if (typeof showHologram === "function") showHologram();
+        if (typeof speakAnswer === "function") speakAnswer(spoken);
+        else if ("speechSynthesis" in window) {
+            const utterance = new SpeechSynthesisUtterance(spoken);
+            utterance.onstart = () => { if (typeof startHologramSpeaking === "function") startHologramSpeaking(); };
+            utterance.onend = () => { if (typeof stopHologramSpeaking === "function") stopHologramSpeaking(); };
+            speechSynthesis.speak(utterance);
+        }
+    } catch(error) {
+        status.textContent="⚠️ "+(error.message||"Unable to load weather. Check your internet connection and try again.");
+    } finally { button.disabled=false; }
+}
+
 
 /* =====================================================
    PAGE LOAD
